@@ -1,5 +1,5 @@
 Event/
-question_images/
+questions_images/
 venv/
 config.json
 bot_users.db
@@ -8,3 +8,5 @@ event.py
 qbot_run.bat
 questions.db
 questions_new.db
+__pycache__/
+.idea/
