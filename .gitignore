@@ -1,0 +1,10 @@
+Event/
+question_images/
+venv/
+config.json
+bot_users.db
+daily_stats.json
+event.py
+qbot_run.bat
+questions.db
+questions_new.db
