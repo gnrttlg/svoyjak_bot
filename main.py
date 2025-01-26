@@ -3,14 +3,13 @@ import random
 import re
 from datetime import datetime, time, timedelta
 from aiogram import Bot, Dispatcher, F
-from aiogram.types import Message
-from aiogram.types import FSInputFile
+from aiogram.types import Message, FSInputFile
 from aiogram.filters.command import Command
 import logging
 from check_answer import check_strings
 from text_to_image import create_question_image
 from db_process import UsersDb, QuestionsDb
-from daily_tracking import DailyTracker
+from daily_tracking import DailyTracker, DailyChampTracker
 import json
 import os
 
@@ -46,6 +45,7 @@ dp = Dispatcher()
 users_db = UsersDb()
 questions_db = QuestionsDb("questions_new.db")
 daily_tracker = DailyTracker("daily_stats.json")
+daily_champ_tracker = DailyChampTracker("daily_champ.json")
 
 
 async def send_question():
@@ -84,7 +84,11 @@ async def check_answer(message: Message):
             bot_state.accepting_answers = False
             questions_db.close_current_questions()
             await message.reply(f"Правильно! \n{result}")
-            users_db.add_point(message.from_user.id, message.from_user.username)
+            name = message.from_user.username if message.from_user.username else ((f"{message.from_user.first_name} "
+                                                                                  f"{message.from_user.last_name}")
+                                                                                  .strip())
+            users_db.add_point(message.from_user.id, name)
+            daily_champ_tracker.increment_daily_stats(name)
         elif correctness == 1:
             await message.reply("Есть частичное совпадение с ответом, но этого недотаточно.")
         else:
@@ -141,8 +145,8 @@ async def schedule_posting():
             daily_tracker.increment_daily_counter()
             try:
                 await bot.send_message(chat_id=GROUP_ID,
-                                       text=f"⚠ Внимание! Вопрос дня №{daily_tracker.get_daily_count()}. Ответы присылайте реплаем на "
-                                            f"вопрос.")
+                                       text=f"⚠ Внимание! Вопрос дня №{daily_tracker.get_daily_count()}. Ответы "
+                                            f"присылайте реплаем на вопрос.")
                 await send_question()
             except Exception:
                 logging.debug(f"Не получилось отправить вопрос в {current_time}")
@@ -163,11 +167,14 @@ async def schedule_posting():
             try:
                 if daily_tracker.get_daily_count() > 0:
                     await bot.send_message(chat_id=GROUP_ID,
-                                           text=f"Вопросы на сегодня закончились. Задано вопросов: {daily_tracker.get_daily_count()}.")
+                                           text=f"Вопросы на сегодня закончились. Задано вопросов: "
+                                                f"{daily_tracker.get_daily_count()}.")
+                    await bot.send_message(chat_id=GROUP_ID, text=daily_champ_tracker.get_champs_string())
             except Exception:
                 logging.debug("Не получилось отправить статистику дня")
             question_point = datetime.combine(datetime.today(), time(7, random.randint(0, 30)))
             logging.debug(f"На следующий день вопрос будет задан в {question_point.time()}")
+            daily_champ_tracker.clean_stats()
 
         wait_time = (question_point - datetime.now()).total_seconds()
 
