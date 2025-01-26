@@ -7,7 +7,6 @@ from bs4 import BeautifulSoup
 main_url = "https://db.chgk.info/random/types12/"
 
 
-# Инициализация базы данных
 def init_db(db_questions_name):
     conn = sqlite3.connect(db_questions_name)
     cursor = conn.cursor()
@@ -23,7 +22,6 @@ def init_db(db_questions_name):
     conn.close()
 
 
-# Проверка наличия вопроса в базе данных
 def is_question_in_db(db_questions_name, question):
     conn = sqlite3.connect(db_questions_name)
     cursor = conn.cursor()
@@ -56,7 +54,7 @@ def get_random_question(db_questions_name):
     site = BeautifulSoup(req.text, "lxml")
     questions = site.find_all("div", class_="random_question")
     for question in questions:
-        if question.find("img") != None:
+        if question.find("img") is not None:
             continue
         strong_tag = question.find('strong')
         text_parts = []
@@ -77,8 +75,6 @@ def get_random_question(db_questions_name):
             if any(keyword in p.text for keyword in ["Ответ:", "Комментарий:"]):
                 answer_text += p.text.strip().replace("\n", " ") + "\n"
             answer_text = answer_text.replace("Ответ: ", "")
-
-        print("Question:", question_text, '\n', 'Answer:', answer_text, '\n\n')
         save_to_db(db_questions_name, question_text, answer_text)
         count += 1
 

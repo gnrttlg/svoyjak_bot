@@ -8,23 +8,20 @@ short_words = [
     "не", "ни"
 ]
 
+
 def remove_trailing_vowels(word):
-    """Удаляет гласные в конце слова."""
     result = re.sub(r'[аеёиоуыэюяьй]+$', '', word)
     return result if result else word
 
 
 def is_one_char_diff(word1, word2):
-    """Проверяет, различаются ли слова на один символ."""
     if abs(len(word1) - len(word2)) > 1:
         return False
-    # Проверка на добавление/удаление одного символа
     if len(word1) != len(word2):
         short, long = (word1, word2) if len(word1) < len(word2) else (word2, word1)
         for i in range(len(long)):
             if short == long[:i] + long[i + 1:]:
                 return True
-    # Проверка на замену одного символа
     if len(word1) == len(word2):
         diff_count = sum(1 for a, b in zip(word1, word2) if a != b)
         return diff_count == 1
@@ -37,7 +34,7 @@ def check_strings(first: str, second: str) -> int:
     first_words = re.findall(r'\b\w+\b', first.lower())
     second_words = re.findall(r'\b\w+\b', second.lower())
 
-    if len(second_words)>1:
+    if len(second_words) > 1:
         for word in short_words:
             if word in second_words:
                 second_words.remove(word)
@@ -49,20 +46,19 @@ def check_strings(first: str, second: str) -> int:
     matches = 0
     for root2 in roots2:
         for root1 in roots1:
-            if root2 == root1 or (len(root2)>5 and is_one_char_diff(root1, root2)):
-                matches+=1
+            if root2 == root1 or (len(root2) > 5 and is_one_char_diff(root1, root2)):
+                matches += 1
                 break
-    if matches==len(roots2):
+    if matches == len(roots2):
         return 2
-    elif matches>0:
+    elif matches > 0:
         return 1
 
     for root2 in roots2:
         for root1 in roots1:
-            if len(root2)>3 and root2 in root1:
+            if len(root2) > 3 and root2 in root1:
                 return 1
     return 0
-
 
 # Тестовые данные
 # test_cases = [
@@ -92,11 +88,10 @@ def check_strings(first: str, second: str) -> int:
 #     ("Море в Мекке", "мертвое море", 1),
 #     ("тарзак", "тарзан", 1),
 #     ("тарзан", "тарзан", 2),
-#     ("Строительство землянки на берегу реки", "идущий к реке", 2)
+#     ("Строительство землянки на берегу реки", "идущий к реке", 1)
 #
 # ]
 #
-# # Запуск тестов
 # for first, second, expected in test_cases:
 #     result = check_strings(first, second)
 #     print(f"Строки: \"{first}\" и \"{second}\" -> {result}, ожидалось: {expected}")

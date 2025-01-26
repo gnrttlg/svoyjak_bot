@@ -1,5 +1,6 @@
 import sqlite3
 
+
 class QuestionsDb(object):
     def __init__(self, db_questions_name="questions.db"):
         self.question_conn = sqlite3.connect(db_questions_name)
@@ -32,16 +33,16 @@ class QuestionsDb(object):
     def is_question_opened(self, question_id):
         self.question_cursor.execute("SELECT released FROM questions WHERE id = ?", (question_id,))
         result = self.question_cursor.fetchone()
-        return result[0] == 1 if result!=None else False
+        return result[0] == 1 if result is not None else False
 
     def get_current_answer(self):
         self.question_cursor.execute("SELECT answer FROM questions WHERE released = ? ORDER BY id DESC LIMIT 1", (1,))
         result = self.question_cursor.fetchone()
-        return result[0] if result!=None else "Открытых вопросов нет в базе"
+        return result[0] if result is not None else "Открытых вопросов нет в базе"
 
     def close_current_questions(self):
         self.question_cursor.execute("UPDATE questions SET released = 2 WHERE released = ?",
-                            (1,))
+                                     (1,))
         self.question_conn.commit()
 
 
@@ -68,4 +69,3 @@ class UsersDb(object):
     def get_stats(self):
         self.user_cursor.execute("SELECT username, correct_answers FROM users ORDER BY correct_answers DESC")
         return self.user_cursor.fetchall()
-

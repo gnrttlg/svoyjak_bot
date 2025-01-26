@@ -24,6 +24,7 @@ API_TOKEN = config["API_TOKEN"]
 GROUP_ID = config["GROUP_ID"]
 BOT_USERNAME = config["BOT_USERNAME"]
 
+
 class BotState:
     def __init__(self):
         self.current_question = None
@@ -67,7 +68,7 @@ async def send_question():
 @dp.message(F.reply_to_message)
 async def check_answer(message: Message):
     reply_message = message.reply_to_message
-    if reply_message.from_user.username != BOT_USERNAME or reply_message.caption == None:
+    if reply_message.from_user.username != BOT_USERNAME or reply_message.caption is None:
         return
     question_text = reply_message.caption
     match = re.match(r"qid: (\d+)", question_text)
@@ -85,7 +86,7 @@ async def check_answer(message: Message):
             questions_db.close_current_questions()
             await message.reply(f"Правильно! \n{result}")
             name = message.from_user.username if message.from_user.username else ((f"{message.from_user.first_name} "
-                                                                                  f"{message.from_user.last_name}")
+                                                                                   f"{message.from_user.last_name}")
                                                                                   .strip())
             users_db.add_point(message.from_user.id, name)
             daily_champ_tracker.increment_daily_stats(name)
